@@ -94,3 +94,29 @@ response = rag_system(query, csv_file, db_file)
 
 # Print the generated response
 print("Generated Response:", response)
+
+
+
+
+The attention mask and the pad token id were not set. As a consequence, you may observe unexpected behavior. Please pass your input's `attention_mask` to obtain reliable results.
+Setting `pad_token_id` to `eos_token_id`:None for open-end generation.
+The attention mask is not set and cannot be inferred from input because pad token is same as eos token. As a consequence, you may observe unexpected behavior. 
+Please pass your input's `attention_mask` to obtain reliable results.
+Traceback (most recent call last):
+  File "c:\Users\Pranjal.Tyagi1\Desktop\POC\main.py", line 187, in <module>
+    response = rag_system(query, csv_file, db_file)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Pranjal.Tyagi1\Desktop\POC\main.py", line 175, in rag_system       
+    response = generate_response(augmented_data)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Pranjal.Tyagi1\Desktop\POC\main.py", line 157, in generate_response
+    outputs = model.generate(inputs, max_length=200, num_return_sequences=1)        
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Pranjal.Tyagi1\Desktop\POC\venv\Lib\site-packages\torch\utils\_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Pranjal.Tyagi1\Desktop\POC\venv\Lib\site-packages\transformers\generation\utils.py", line 2068, in generate
+    self._validate_generated_length(generation_config, input_ids_length, has_default_max_length)
+  File "C:\Users\Pranjal.Tyagi1\Desktop\POC\venv\Lib\site-packages\transformers\generation\utils.py", line 1383, in _validate_generated_length
+    raise ValueError(
+ValueError: Input length of input_ids is 1024, but `max_length` is set to 200. This can lead to unexpected behavior. You should consider increasing `max_length` or, better yet, setting `max_new_tokens`
