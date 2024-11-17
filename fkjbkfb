@@ -55,8 +55,8 @@ def generate_response(augmented_data):
     model = GPT2LMHeadModel.from_pretrained(model_name)
     tokenizer = GPT2Tokenizer.from_pretrained(model_name)
     
-    # Tokenize the input text
-    inputs = tokenizer.encode(augmented_data, return_tensors="pt")
+    # Tokenize the input text and ensure the token length does not exceed the model's max length
+    inputs = tokenizer.encode(augmented_data, return_tensors="pt", truncation=True, max_length=1024)
     
     # Generate text from the model
     outputs = model.generate(inputs, max_length=200, num_return_sequences=1)
