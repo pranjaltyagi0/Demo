@@ -50,6 +50,8 @@ def augment_data_with_retrieved_info(data, query_text):
     return augmented_response
 
 # Step 5: Generate response using local Hugging Face model
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
+
 def generate_response(augmented_data):
     # Load the pre-trained GPT-2 model and tokenizer locally
     model_name = "gpt2"
@@ -60,11 +62,18 @@ def generate_response(augmented_data):
     inputs = tokenizer.encode(augmented_data, return_tensors="pt", truncation=True, max_length=1024)
     
     # Generate text from the model
-    outputs = model.generate(inputs, max_length=200, num_return_sequences=1)
+    # Set max_new_tokens instead of max_length to ensure we generate only the specified number of new tokens
+    outputs = model.generate(inputs, max_new_tokens=200, num_return_sequences=1)
     
     # Decode and return the generated text
     generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
     return generated_text
+
+# Example Usage
+augmented_data = "Query: What is the price of Product A?\nRetrieved Data:\nProduct A is $99.99"  # Example query and retrieved data
+response = generate_response(augmented_data)
+print("Generated Response:", response)
+
 
 # Complete RAG System
 def rag_system(query_text, csv_file, db_file):
