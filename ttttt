@@ -1,0 +1,94 @@
+import pandas as pd
+import sqlite3
+
+def csv_to_sqlite(csv_file, db_file):
+    # Load CSV into pandas DataFrame
+    df = pd.read_csv(csv_file)
+    
+    # Connect to SQLite database (it will be created if it doesn't exist)
+    conn = sqlite3.connect(db_file)
+    
+    # Convert the DataFrame to SQL table (replace if exists)
+    df.to_sql('data_table', conn, if_exists='replace', index=False)
+    
+    # Commit and close the connection
+    conn.commit()
+    conn.close()
+    
+    print(f"Data from {csv_file} has been loaded into SQLite database {db_file}")
+
+
+def query_sqlite(query, db_file):
+    # Connect to SQLite database
+    conn = sqlite3.connect(db_file)
+    
+    # Execute the query and fetch results
+    result = pd.read_sql_query(query, conn)
+    
+    # Close connection
+    conn.close()
+    
+    return result
+
+
+def retrieve_data(query_text, db_file):
+    # Define a simple SQL template for querying based on user query
+    # This could be improved with more sophisticated NLP-based query understanding
+    sql_query = f"SELECT * FROM data_table WHERE column_name LIKE '%{query_text}%'"
+    
+    # Query the SQLite database
+    data = query_sqlite(sql_query, db_file)
+    
+    return data
+
+def augment_data_with_retrieved_info(data, query_text):
+    # Augment the response by appending the relevant data
+    augmented_response = f"Query: {query_text}\nRetrieved Data:\n{data.to_string(index=False)}"
+    return augmented_response
+
+
+from transformers import pipeline
+
+def generate_response(augmented_data):
+    # Load a text generation pipeline using Hugging Face's transformers
+    generator = pipeline('text-generation', model='gpt2')  # You can choose other models like 'gpt-neo', 'gpt-3.5-turbo', etc.
+    
+    # Generate a response using the augmented data as input
+    response = generator(augmented_data, max_length=200, num_return_sequences=1)
+    
+    # Extract the generated text from the response
+    return response[0]['generated_text'].strip()
+
+
+
+def rag_system(query_text, csv_file, db_file):
+    # Step 1: Load CSV into SQLite if it's not already loaded
+    csv_to_sqlite(csv_file, db_file)
+    
+    # Step 2: Retrieve relevant data based on the query
+    retrieved_data = retrieve_data(query_text, db_file)
+    
+    # Step 3: Augment the query with the retrieved data
+    augmented_data = augment_data_with_retrieved_info(retrieved_data, query_text)
+    
+    # Step 4: Generate a response based on augmented data using Hugging Face model
+    response = generate_response(augmented_data)
+    
+    return response
+
+
+
+
+csv_file = 'data.csv'  # Path to your CSV file
+db_file = 'data.db'    # Path to your SQLite database
+
+# Example query: asking for information related to a product
+query = "What is the price of Product A?"
+
+# Run the RAG system
+response = rag_system(query, csv_file, db_file)
+
+# Print the generated response
+print("Generated Response:", response)
+
+
