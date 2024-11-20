@@ -111,4 +111,7 @@ chat_completion = client.chat.completions.create(
 
 print(chat_completion.choices[0].message.content)
 
-
+    curl -X POST "https://api.groq.com/openai/v1/chat/completions" \
+     -H "Authorization: Bearer $GROQ_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"messages": [{"role": "user", "content": "Explain the importance of fast language models"}], "model": "llama3-8b-8192"}'
