@@ -1,0 +1,62 @@
+import os,prompt
+from dotenv import load_dotenv
+from langchain_groq import ChatGroq
+from langchain_core.prompts import PromptTemplate
+import snowflake_connector
+
+load_dotenv()
+
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+llm = ChatGroq(model="llama3-8b-8192", temperature=0)
+
+# Query data from Snowflake
+schema = snowflake_connector.Querying_data()
+question=input("Please Enter your query\n")
+# Format the prompt with the queried data
+prompt_template = PromptTemplate.from_template(prompt.prompt)
+formatted_prompt = prompt_template.format(database_schema=schema,question=question)
+
+# Invoke the model with the formatted prompt
+response = llm.invoke(formatted_prompt)
+print(response.content)
+
+
+
+import snowflake.connector
+from dotenv import load_dotenv
+import os
+load_dotenv()
+def create_connection():
+    try:
+        conn=snowflake.connector.connect(
+            user=os.getenv("user"),
+            password=os.getenv("password"),
+            account=os.getenv("account"),
+            database=os.getenv("database"),
+            schema=os.getenv("schema")
+        )
+        conn.autocommit(False)
+        print("Connection Successful")
+        return conn
+    except Exception as e:
+        print(e)
+        
+def Querying_data():
+    try:
+        conn= create_connection()
+    except Exception as e:
+        print("Connection Successful")
+    
+    try:
+        cur=conn.cursor()
+        cur.execute("SELECT TABLE_NAME,Column_Name,Data_Type,Table_SCHEMA FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA ='TPCH_SF1' ORDER BY TABLE_NAME")
+        df=cur.fetch_pandas_all()
+        with open("log.txt","w") as file:
+            file.write(df.to_string())
+        
+    except snowflake.connector.errors.Error as e:
+        print(e)
+    finally:
+        cur.close()
+        conn.close()
+Querying_data
