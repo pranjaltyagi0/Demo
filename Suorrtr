@@ -1,0 +1,73 @@
+import snowflake.connector
+
+# Establish the connection
+def connection():
+   try:
+      ctx = snowflake.connector.connect(
+         user="0b4c1ba4-8440-4c3e-b451-ce05c92d56a8",
+         # host="<hostname>",
+         account="mo37750.central-india.azure",
+         authenticator="oauth",
+         token="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6InoxcnNZSEhKOS04bWdndDRIc1p1OEJLa0JQdyJ9.eyJhdWQiOiJjZTBhMzY3Yi00MzUxLTQ4OWQtYjM3ZC01ODQxNDgyMWQ1YjEiLCJpc3MiOiJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vNGZhZDAyZmUtNWU0OS00ZWRkLWFmNzQtZmFhNWQ0MmUyM2Y5L3YyLjAiLCJpYXQiOjE3MzY0MDA4MTEsIm5iZiI6MTczNjQwMDgxMSwiZXhwIjoxNzM2NDA0NzExLCJhaW8iOiJrMkJnWUhCZklWaXZzbEpXNUx2aU5EbXpSSU41MnhoamVwcE1tN3RabFI3ZmlqRm51UThBIiwiYXpwIjoiZTZiOWFjOGEtOTViMi00MDJiLWI5NjItNjVkYjI3NWRmNjVmIiwiYXpwYWNyIjoiMSIsIm9pZCI6IjBiNGMxYmE0LTg0NDAtNGMzZS1iNDUxLWNlMDVjOTJkNTZhOCIsInJoIjoiMS5BY1lBX2dLdFQwbGUzVTZ2ZFBxbDFDNGotWHMyQ3M1UlE1MUlzMzFZUVVnaDFiSEdBQURHQUEuIiwicm9sZXMiOlsic2Vzc2lvbjpyb2xlOkFkbWluIl0sInN1YiI6IjBiNGMxYmE0LTg0NDAtNGMzZS1iNDUxLWNlMDVjOTJkNTZhOCIsInRpZCI6IjRmYWQwMmZlLTVlNDktNGVkZC1hZjc0LWZhYTVkNDJlMjNmOSIsInV0aSI6IjJVSUd3YUtjeGtDRThBalF0RDBMQUEiLCJ2ZXIiOiIyLjAifQ.O-om_bQpy5FrfQc96dl7YJQduUGPrvEUQ8xpa20jG7XWnGOjfPPHuXLIwzSPOW4lz523mQKobYylEjpTxmsjXm4XXCrVIrXVEgFvSRlZptvjRlRC2CrqNnaYydJu3ZPliGLJcAoEauNj5AeFVHr0iGuQ3t7uTAJiHV9oBGaSN__NYCNA0BOMgI4qcqt-v-DXsly8ohsXFJJfzJEja_CybSNdpY0LPL66s7wgSmruYcMog9MBiqpfibuDrnIZhnfTfnjXeX8TWMIM7ZxJGCFcax0_oJgB4K5g3uG34hhZu7Nzmu0FZwkSt7XnVvIz_z-Fu5PYlHlz-OpIrbKp2EN9ag",
+         # warehouse="test_warehouse",
+         database="snowflake_sample_data",
+         schema="TPCH_SF1"
+      )
+      return ctx
+   except Exception as e:
+      print(e)
+
+def create():
+   try:
+      conn=connection()
+      print(conn)
+   except Exception as e:
+      print(e)
+   # finally:
+   #    conn.close()
+      
+# # Create a cursor object
+# cur = ctx.cursor()
+
+# # Execute a query
+# cur.execute("SELECT CURRENT_VERSION()")
+
+# # Fetch the result
+# one_row = cur.fetchone()
+# print(one_row)
+
+# # Close the cursor and connection
+create()
+
+
+$headers = @{
+    "Content-Type" = "application/x-www-form-urlencoded;charset=UTF-8"
+}
+
+$body = @{
+    "client_id"     = "e6b9ac8a-95b2-402b-b962-65db275df65f"
+    "client_secret" = "eAO8Q~EOboCptdeGsJMl9Xv1J~BHk7ZpLutdgaNi"
+    "grant_type"    = "client_credentials"
+    "scope"         = "api://ce0a367b-4351-489d-b37d-58414821d5b1/.default"
+}
+
+Invoke-WebRequest -Uri 'https://login.microsoftonline.com/common/oauth2/v2.0/token' `
+                  -Method POST `
+                  -Headers $headers `
+                  -Body $body
+
+
+# Store the raw response from the Invoke-WebRequest
+$response = Invoke-WebRequest -Uri 'https://login.microsoftonline.com/4fad02fe-5e49-4edd-af74-faa5d42e23f9/oauth2/v2.0/token' `
+                              -Method POST `
+                              -Headers $headers `
+                              -Body $body
+
+# Convert the raw JSON content to a PowerShell object
+$responseContent = $response.Content | ConvertFrom-Json
+
+# Extract the access token
+$accessToken = $responseContent.access_token
+
+# Output the access token
+$accessToken
